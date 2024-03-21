@@ -98,7 +98,7 @@ export function getCompanies() {
   return async (dispatch: Dispatch) => {
     try {
       console.log('here is works');
-      console.log('here is works', process.env);
+      console.log('here is works', process.env, process.env.GET_COMPANIES_API);
       // Make an HTTP GET request to the API
       const response = await axios.get(`${process.env.GET_COMPANIES_API}`);
       console.log('response received');
