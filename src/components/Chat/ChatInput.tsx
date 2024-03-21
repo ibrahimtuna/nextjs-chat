@@ -39,7 +39,7 @@ const ChatInput = () => {
       }),
     );
     axios
-      .post(`${process.env.SEND_MESSAGE_API}`, {
+      .post("https://sendmessage-sv5z4zq53q-ey.a.run.app", {
         message: tmpMessageInput,
         identifier,
         companyId: selectedCompany,

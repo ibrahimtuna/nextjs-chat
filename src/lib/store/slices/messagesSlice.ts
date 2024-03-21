@@ -97,11 +97,10 @@ export default messagesSlice.reducer;
 export function getCompanies() {
   return async (dispatch: Dispatch) => {
     try {
-      console.log('here is works');
-      console.log('here is works', process.env, process.env.GET_COMPANIES_API);
       // Make an HTTP GET request to the API
-      const response = await axios.get(`${process.env.GET_COMPANIES_API}`);
-      console.log('response received');
+      const response = await axios.get(
+        "https://getdemocompanies-sv5z4zq53q-ey.a.run.app",
+      );
       // Extract card resources from the API response
       const resources: Company[] = response.data.companies;
 
