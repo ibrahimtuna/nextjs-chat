@@ -9,20 +9,18 @@ import ChatLoading from "@/components/Chat/ChatLoading";
 
 const ChatInput = () => {
   const dispatch = useDispatch();
-  const { selectedCompany, identifier } = useSelector(
-    (state: RootState) => state.messages,
-  );
+  const { selectedUser } = useSelector((state: RootState) => state.messages);
   const [inputValue, setInputValue] = useState("");
   const [isAnswerWaiting, setIsAnswerWaiting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useMemo(() => {
-    if (selectedCompany) {
+    if (selectedUser) {
       inputRef.current?.focus();
     }
-  }, [selectedCompany]);
+  }, [selectedUser]);
 
-  if (!selectedCompany) {
+  if (!selectedUser) {
     return null;
   }
 
@@ -35,32 +33,22 @@ const ChatInput = () => {
       addMessage({
         content: tmpMessageInput,
         role: "user",
-        companyId: selectedCompany,
+        userId: selectedUser,
       }),
     );
-    axios
-      .post("https://sendmessage-sv5z4zq53q-ey.a.run.app", {
-        message: tmpMessageInput,
-        identifier,
-        companyId: selectedCompany,
-      })
-      .then(({ data }) => {
-        setIsAnswerWaiting(false);
-        dispatch(
-          addMessage({
-            content: data.message,
-            role: "assistant",
-            companyId: selectedCompany,
-          }),
-        );
-        setTimeout(() => {
-          inputRef.current?.focus();
-        }, 400);
-      })
-      .catch((err) => {
-        console.log(err, "err happen when getting ai response");
-        alert("Hata oluştu");
-      });
+    setTimeout(() => {
+      setIsAnswerWaiting(false);
+      dispatch(
+        addMessage({
+          content: tmpMessageInput,
+          role: "assistant",
+          userId: selectedUser,
+        }),
+      );
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 400);
+    }, 2000);
   };
 
   return (
@@ -72,7 +60,7 @@ const ChatInput = () => {
       <input
         type="text"
         className="w-full h-[36px] rounded placeholder-gray-500 dark:placeholder-gray-300 px-2 dark:bg-neutral-600 dark:text-gray-100"
-        placeholder="Bir mesaj yazın"
+        placeholder="Write a message"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         disabled={isAnswerWaiting}

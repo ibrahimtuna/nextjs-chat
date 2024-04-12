@@ -1,18 +1,20 @@
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
-import { Company, setSelectedCompany } from "@/lib/store/slices/messagesSlice";
+import { setSelectedUser } from "@/lib/store/slices/messagesSlice";
 import { RootState, useDispatch, useSelector } from "@/lib/store/store";
+import { Message, User } from "@/lib/store/slices/types";
+import moment from "moment";
 
 type Props = {
-  company: Company;
+  user: User;
   closeMobileMenu: () => void;
 };
-const ChatList: React.FC<Props> = ({ company, closeMobileMenu }) => {
+const ChatList: React.FC<Props> = ({ user, closeMobileMenu }) => {
   const { messages } = useSelector((state: RootState) => state.messages);
-  const [lastMessage, setLastMessage] = useState("");
+  const [lastMessage, setLastMessage] = useState<Message>();
   const dispatch = useDispatch();
-  const handleChangeSelectedCompany = () => {
-    dispatch(setSelectedCompany(company._id));
+  const handleChangeSelectedUser = () => {
+    dispatch(setSelectedUser(user.id));
     closeMobileMenu();
   };
 
@@ -20,7 +22,7 @@ const ChatList: React.FC<Props> = ({ company, closeMobileMenu }) => {
     const tmpMessages = [...messages];
     const foundMessage = tmpMessages
       .sort((a, b) => b.createdAt - a.createdAt)
-      .find((item) => item.companyId === company._id)?.content;
+      .find((item) => item.userId === user.id);
     if (foundMessage) {
       setLastMessage(foundMessage);
     }
@@ -30,25 +32,25 @@ const ChatList: React.FC<Props> = ({ company, closeMobileMenu }) => {
   return (
     <li
       className="hover:bg-gray-50 dark:hover:bg-neutral-900 cursor-pointer h-[72px] flex items-center cursor-pointer"
-      onClick={handleChangeSelectedCompany}
+      onClick={handleChangeSelectedUser}
     >
       <Image
-        src={company.assistantPhotoUrl}
-        alt={company.name}
-        width={50}
-        height={50}
-        className="rounded-full w-[50px] h-[50px] ms-2"
+        src={user.picture.thumbnail}
+        alt={`${user.name.first} ${user.name.last}`}
+        width={48}
+        height={48}
+        className="rounded-full ms-2"
       />
-      <div className="ms-2 border-b-[1px] dark:border-black pb-2 h-full flex flex-col justify-center w-[calc(100vw-1rem-50px)] md:w-[calc(100%-1rem-50px)]">
-        <div className="flex items-center">
-          <h3 className="text-gray-800 dark:text-gray-100">{company.name}</h3>
-          <span className="ms-2 text-xs text-gray-600 dark:text-gray-400">
-            - {company.market}
+      <div className="ms-2 border-b-[1px] dark:border-black h-full flex flex-col justify-center w-[calc(100vw-1rem-50px)] md:w-[calc(100%-1rem-50px)]">
+        <h3 className="text-gray-800 dark:text-gray-100">{`${user.name.first} ${user.name.last}`}</h3>
+        <div className="text-gray-600 dark:text-gray-200 text-xs mt-1 flex items-center justify-between pe-5">
+          <span className="text-nowrap text-ellipsis max-w-full overflow-hidden pe-2">
+            {lastMessage?.content || "No messages yet."}
           </span>
+          {lastMessage ? (
+            <span>{moment(lastMessage.createdAt).format("hh:mm A")}</span>
+          ) : null}
         </div>
-        <span className="text-gray-800 dark:text-gray-200 text-xs mt-1 text-nowrap text-ellipsis max-w-full overflow-hidden pe-2">
-          {lastMessage}
-        </span>
       </div>
     </li>
   );

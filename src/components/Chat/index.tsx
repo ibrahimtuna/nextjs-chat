@@ -3,33 +3,33 @@ import ChatInput from "@/components/Chat/ChatInput";
 import ChatBubble from "@/components/Chat/ChatBubble";
 import { RootState, useSelector } from "@/lib/store/store";
 import React, { useMemo, useRef, useState } from "react";
-import { Company } from "@/lib/store/slices/messagesSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { User } from "@/lib/store/slices/types";
 
 type Props = {
   openMobileMenu: () => void;
 };
 const Chat: React.FC<Props> = ({ openMobileMenu }) => {
-  const { messages, selectedCompany, companies } = useSelector(
+  const { messages, selectedUser, users } = useSelector(
     (state: RootState) => state.messages,
   );
-  const [activeChat, setActiveChat] = useState<Company>();
+  const [activeChat, setActiveChat] = useState<User>();
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
   const selectedChatMessages = messages
-    .filter((item) => item.companyId === selectedCompany)
+    .filter((item) => item.userId === selectedUser)
     .sort((a, b) => a.createdAt - b.createdAt);
 
   useMemo(() => {
-    const foundChat = companies.find(
-      (company) => company._id === selectedCompany,
+    const foundChat = users.find(
+      (user) => user.id === selectedUser,
     );
     if (foundChat) {
       setActiveChat(foundChat);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompany]);
+  }, [selectedUser]);
 
   const handleScrollBottom = () => {
     if (messageContainerRef.current) {
@@ -56,8 +56,8 @@ const Chat: React.FC<Props> = ({ openMobileMenu }) => {
             />
           </button>
           <Image
-            src={activeChat.assistantPhotoUrl}
-            alt={activeChat.name}
+            src={activeChat.picture.thumbnail}
+            alt={`${activeChat.name.first} ${activeChat.name.last}`}
             width={40}
             height={40}
             className="rounded-full"
@@ -67,11 +67,8 @@ const Chat: React.FC<Props> = ({ openMobileMenu }) => {
               className="ms-2 dark:text-gray-100"
               onClick={handleScrollBottom}
             >
-              {activeChat.name}
+              {`${activeChat.name.first} ${activeChat.name.last}`}
             </h3>
-            <span className="ms-2 text-gray-600 dark:text-gray-400">
-              - {activeChat.market}
-            </span>
           </div>
         </div>
       ) : null}

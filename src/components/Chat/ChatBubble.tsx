@@ -11,7 +11,7 @@ const ChatBubble: React.FC<ChatMessage> = ({ message, role, createdAt }) => (
       >
         {message}
         <span className="text-xs flex self-end text-gray-500 dark:text-gray-400 mt-2">
-          {moment(createdAt).format("HH:mm")}
+          {moment(createdAt).format("hh:mm A")}
         </span>
       </div>
     </div>

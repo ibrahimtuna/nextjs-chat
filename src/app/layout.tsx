@@ -12,8 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "biens.ai",
-  description: "biens.ai canlı demo",
+  title: "chat.com",
+  description: "chat.com",
 };
 
 export default function RootLayout({

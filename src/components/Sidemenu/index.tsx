@@ -1,6 +1,4 @@
 import ChatList from "@/components/ChatList";
-import Image from "next/image";
-import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,7 +15,7 @@ const Sidemenu: React.FC<Props> = ({
   isMobileMenuOpen,
   setIsMobileMenuOpen,
 }) => {
-  const { isCompaniesLoading, companies } = useSelector(
+  const { isUsersLoading, users } = useSelector(
     (state: RootState) => state.messages,
   );
 
@@ -30,19 +28,12 @@ const Sidemenu: React.FC<Props> = ({
     <div
       className={`md:relative md:w-[25vw] md:min-w-[25vw] md:max-w-[25vw] bg-white max-md:h-dvh dark:bg-neutral-800 md:rounded-bl-lg md:rounded-tl-lg border-r-[1px] dark:border-black ${isMobileMenuOpen ? openedMobileMenuClass : closedMobileMenuClass}`}
     >
-      <ul>
-        <li className="h-[60px] flex items-center justify-center border-b-[1px] dark:border-black relative">
-          <Link href={"https://biens.ai"}>
-            <Image
-              src={"biens.ai.svg"}
-              alt={"biens-logo"}
-              width={90}
-              height={30}
-            />
-          </Link>
+      <ul className="overflow-y-auto h-full">
+        <li className="h-[60px] flex items-center justify-start ps-3 border-b-[1px] dark:border-black relative">
+          <span className="text-[#00a2e8]">chat.com</span>
           <DarkModeToggle />
         </li>
-        {isCompaniesLoading ? (
+        {isUsersLoading ? (
           <div className="flex items-center justify-center py-5">
             <FontAwesomeIcon
               icon={faCircleNotch}
@@ -52,10 +43,10 @@ const Sidemenu: React.FC<Props> = ({
             />
           </div>
         ) : (
-          companies.map((company) => (
+          users.map((user) => (
             <ChatList
-              key={company._id}
-              company={company}
+              key={user.id}
+              user={user}
               closeMobileMenu={() => setIsMobileMenuOpen(false)}
             />
           ))

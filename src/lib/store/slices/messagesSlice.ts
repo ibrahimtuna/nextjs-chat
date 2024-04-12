@@ -1,39 +1,22 @@
-import { createSlice, Dispatch } from "@reduxjs/toolkit";
+import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
-// Define the interface for a Card
-export interface Company {
-  _id: string;
-  name: string;
-  assistantPhotoUrl: string;
-  market: string;
-  welcomeMessage: string;
-}
-
-interface Message {
-  createdAt: number;
-  content: string;
-  role: "user" | "assistant";
-  companyId: string;
-}
+import { User, Message } from "@/lib/store/slices/types";
 
 // Define the interface for the state managed by this slice
 interface MessagesState {
-  companies: Company[];
+  users: User[];
   messages: Message[];
-  isCompaniesLoading: boolean;
-  selectedCompany?: string;
-  identifier: string;
+  isUsersLoading: boolean;
+  selectedUser?: string;
   isDarkMode: boolean;
 }
 
 // Define the initial state for this slice
 const initialState: MessagesState = {
-  companies: [],
+  users: [],
   messages: [],
-  isCompaniesLoading: true,
-  identifier: uuidv4(),
+  isUsersLoading: true,
   isDarkMode: false,
 };
 
@@ -43,33 +26,30 @@ const messagesSlice = createSlice({
   initialState, // Initial state
   reducers: {
     // Reducer for updating cardDetails after a successful resource fetch
-    getCompaniesSuccess(state, action) {
-      state.companies = action.payload;
-      state.isCompaniesLoading = false;
-      state.selectedCompany = action.payload[0]._id;
-      action.payload.map((company: Company) => {
-        state.messages.push({
-          createdAt: new Date().getTime(),
-          content: company.welcomeMessage,
-          role: "assistant",
-          companyId: company._id,
-        });
-      });
+    getUsersSuccess(state, action: PayloadAction<User[]>) {
+      // add unique id for each user
+      const usersWithUniqueId: User[] = [...action.payload].map((user) => ({
+        ...user,
+        id: uuidv4(),
+      }));
+      state.users = usersWithUniqueId;
+      state.isUsersLoading = false;
+      state.selectedUser = action.payload[0].id;
     },
-    setSelectedCompany(state, action: { payload: string }) {
-      state.selectedCompany = action.payload;
+    setSelectedUser(state, action: { payload: string }) {
+      state.selectedUser = action.payload;
     },
     addMessage(
       state,
       action: {
-        payload: { content: string; role: Message["role"]; companyId: string };
+        payload: { content: string; role: Message["role"]; userId: string };
       },
     ) {
       state.messages.push({
         createdAt: new Date().getTime(),
         content: action.payload.content,
         role: action.payload.role,
-        companyId: action.payload.companyId,
+        userId: action.payload.userId,
       });
     },
     darkmodeToggler(state, action: { payload: boolean }) {
@@ -83,31 +63,24 @@ const messagesSlice = createSlice({
 });
 
 // Export the action creator for getResourcesSuccess
-export const {
-  getCompaniesSuccess,
-  setSelectedCompany,
-  addMessage,
-  darkmodeToggler,
-} = messagesSlice.actions;
+export const { getUsersSuccess, setSelectedUser, addMessage, darkmodeToggler } =
+  messagesSlice.actions;
 
 // Export the reducer
 export default messagesSlice.reducer;
 
 // Define an asynchronous action creator to fetch card resources from an API
-export function getCompanies() {
+export function getUsers() {
   return async (dispatch: Dispatch) => {
     try {
-      // Make an HTTP GET request to the API
-      const response = await axios.get(
-        "https://getdemocompanies-sv5z4zq53q-ey.a.run.app",
-      );
-      // Extract card resources from the API response
-      const resources: Company[] = response.data.companies;
+      const USERS_ENDPOINT = process.env.GET_USERS_API as string;
+      const response = await axios.get(USERS_ENDPOINT);
+      const resources: User[] = response.data.results;
 
-      // Dispatch the getResourcesSuccess action to update the Redux state
-      dispatch(getCompaniesSuccess(resources));
+      // Dispatch the getUsersSuccess action to update the Redux state
+      dispatch(getUsersSuccess(resources));
     } catch (error) {
-      console.error("Error fetching company resources:", error);
+      console.error("Error fetching users resources:", error);
     }
   };
 }
